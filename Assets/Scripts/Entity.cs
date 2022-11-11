@@ -68,14 +68,21 @@ public class Entity:MonoBehaviour{
     public class Health{
         int maxHealth;
         int currentHealth;
+
+        int overHealth;
         bool isDead;
-        public Health(int startingHealth){
-            maxHealth = startingHealth;
+        public Health(int startingHealth, int maxStartingHealth=-1){
+            maxHealth = (maxStartingHealth == -1) ? startingHealth : maxStartingHealth;
             currentHealth = startingHealth;
             isDead = false;
+            overHealth = 0;
         }
         public int getHealth(){
             return currentHealth;
+        }
+
+        public int getOverHealth(){
+            return overHealth;
         }
 
         public bool deadCheck(){
@@ -84,15 +91,40 @@ public class Entity:MonoBehaviour{
         }
 
         public int reduceHealth(int reduction){
-            currentHealth = currentHealth - reduction;
+            if(overHealth > 0){
+                if(reduction > overHealth){
+                    int gap = reduction - overHealth;
+                    overHealth = 0;
+                    currentHealth = currentHealth - gap;
+                }
+                else{
+                    overHealth = overHealth - reduction;
+                }
+            }
+            else{
+                currentHealth = currentHealth - reduction;
+            }
             deadCheck();
             return currentHealth;
         }
 
-        public int addHealth(int addition){
-            currentHealth = currentHealth + addition;
+        public int addHealth(int additionToBase, int additionToOverHealth){   
+            currentHealth = currentHealth + additionToBase;
             if(currentHealth > maxHealth){
                 currentHealth = maxHealth;
+            }
+            if(additionToOverHealth > 0 && currentHealth < maxHealth){
+                int healthMissing = maxHealth - currentHealth;
+                if(healthMissing >= additionToOverHealth){
+                    currentHealth = currentHealth + additionToOverHealth;
+                }
+                else{
+                    currentHealth = currentHealth + healthMissing;
+                    overHealth = additionToOverHealth -healthMissing;
+                }
+            }
+            else if(additionToOverHealth >0 && currentHealth==maxHealth){
+                overHealth=overHealth+additionToOverHealth;
             }
             return currentHealth;
         }
@@ -106,8 +138,8 @@ public class Entity:MonoBehaviour{
 
         public static Enemy selectedEnemy = null;
 
-        public static object[] allyList = new object[3]; //have to use object since mage, ranger, melee, tank, and healer are all different class types both literally and figuratively.
-        public static Entity selectedAlly =null;
+        public static List<System.Type> allyList = new List<System.Type>(3); 
+        public static System.Type selectedAlly =null;
         
         public static Enemy[] enemiesNearSelectedEnemy(Enemy selectedEnemy, Enemy[] enemyList, int size, int range){
             GameObject enemyObject;
@@ -133,11 +165,24 @@ public class Entity:MonoBehaviour{
             }
             return nearbyEnemies;
         }
-        public static bool isEnemyInRange(Enemy selectedEnemy, float casterX, float casterY, int range){
-            float minX = (selectedEnemy.gameObject.transform.position.x)-range; 
-            float maxX = (selectedEnemy.gameObject.transform.position.x)+range; 
-            float minY = (selectedEnemy.gameObject.transform.position.y)-range; 
-            float maxY = (selectedEnemy.gameObject.transform.position.y)+range;
+        public static bool isEnemyInRange(UnityEngine.Component selectedEnemy, float casterX, float casterY, int range, GameObject selectedAlly=null){
+            float minX;
+            float maxX;
+            float minY;
+            float maxY;
+            if(selectedAlly != null){
+                minX = (selectedAlly.transform.position.x)-range; 
+                maxX = (selectedAlly.transform.position.x)+range; 
+                minY = (selectedAlly.transform.position.y)-range; 
+                maxY = (selectedAlly.transform.position.y)+range;
+            }
+            else{
+                minX = (selectedEnemy.gameObject.transform.position.x)-range; 
+                maxX = (selectedEnemy.gameObject.transform.position.x)+range; 
+                minY = (selectedEnemy.gameObject.transform.position.y)-range; 
+                maxY = (selectedEnemy.gameObject.transform.position.y)+range;
+            }
+            
             if(casterX <= maxX && casterX >= minX){
                 if(casterY <= maxY && casterY >= minY){
                     return true;
@@ -146,11 +191,22 @@ public class Entity:MonoBehaviour{
             return false;
         }
 
+        public static bool isAllyInRange(System.Type selectedAlly, float casterX, float casterY, int range){
+            Object test = FindObjectOfType(selectedAlly);
+            if(test != null){
+                string objectName = test.ToString(); //Returns ObjectName (Type) when wanting just ObjectName
+                objectName = objectName.Substring(0,objectName.IndexOf('(')-1); 
+                GameObject representingGameObject = GameObject.Find(objectName);
+                return isEnemyInRange(null,casterX,casterY,range, representingGameObject);
+            }
+            return false;
+        }
+
 
         public class threatTable{
             List<KeyValuePair<System.Type,int>> table = new List<KeyValuePair<System.Type,int>>(3); //Only 3 playable characters
             public threatTable(){
-                for (int i = 0; i < CharacterSelect.classArray.Length; i++){
+                for (int i = 0; i < CharacterSelect.classArray.Length; i++){ //First target is usually the last element to be added.
                     if(CharacterSelect.classArray[i] == true){
                         KeyValuePair<System.Type, int> threatPair;
                         switch (i){
@@ -217,7 +273,7 @@ public class Entity:MonoBehaviour{
                         break;
                     }
                 }
-                int newThreat = (topThreat.Value>200)? (int) ((double)topThreat.Value * 1.25) : topThreat.Value+250;
+                int newThreat = (topThreat.Value>200)? (int) ((double)topThreat.Value * 1.25) : topThreat.Value+250; //In the case where taunt is the first ability casted on the target.
                 var threatPair = new KeyValuePair<System.Type, int>(playableCharacter,newThreat);
                 table.Add(threatPair);
             }
@@ -226,4 +282,28 @@ public class Entity:MonoBehaviour{
         }
     }
     
+    void Start(){
+        //Generate allyList, needed for healer (AOE heal).
+        for (int i = 0; i < CharacterSelect.classArray.Length; i++){
+            if(CharacterSelect.classArray[i] == true){
+                switch (i){
+                    case 0:
+                        Combat.allyList.Add(typeof(Warrior));
+                        break;
+                    case 1:
+                        Combat.allyList.Add(typeof(Ranger));
+                        break;
+                    case 2:
+                        Combat.allyList.Add(typeof(Healer));
+                        break;
+                    case 3:
+                        Combat.allyList.Add(typeof(Mage));
+                        break;
+                    case 4:
+                        Combat.allyList.Add(typeof(Tank));
+                        break;
+                }
+            }
+        }
+    }
 }
