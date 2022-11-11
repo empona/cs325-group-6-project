@@ -25,24 +25,24 @@ public class Tank : MonoBehaviour
 
     int spellRange = 5000;
 
-    Entity.Health tankHealth = new Entity.Health(200);
-    Entity.Action tankAction = new Entity.Action();
-    Entity.Movement tankMovement = new Entity.Movement(-1);
+    public static Entity.Health health = new Entity.Health(200);
+    public Entity.Action action = new Entity.Action();
+    public Entity.Movement movement = new Entity.Movement(-1);
 
     public void updateTankText(){
-        tankText.text=$"Tank Health: {tankHealth.getHealth()}\r\nTank Action Points: {tankAction.getActionPoints()}"; 
+        tankText.text=$"Tank Health: {(health.getHealth()+health.getOverHealth())}\r\nTank Action Points: {action.getActionPoints()}"; 
         // fun fact: \r is carriage return which is used in Windows as '\r\n' for EOL other operating systems use a mixture of \r or \n.
         // Right here its useless, it does nothing, im just bored.
     }
 
 
     public void castDistact(){
-        if(tankAction.actionUsable(distractCost)){
+        if(action.actionUsable(distractCost)){
             if(Entity.Combat.selectedEnemy != null){
                 if(Entity.Combat.isEnemyInRange(Entity.Combat.selectedEnemy,this.gameObject.transform.position.x,this.gameObject.transform.position.y, spellRange)){
                     Entity.Combat.selectedEnemy.enemyHealth.reduceHealth(distractDamage);
                     Entity.Combat.selectedEnemy.enemyTarget.generateThreat(typeof(Tank),distractDamage);
-                    tankAction.actionPointReduction(distractCost);
+                    action.actionPointReduction(distractCost);
                 }
                 else{
                     Debug.Log("Enemy not close enough");
@@ -62,11 +62,11 @@ public class Tank : MonoBehaviour
     }
 
     public void castTaunt(){
-        if(tankAction.actionUsable(tauntCost)){
+        if(action.actionUsable(tauntCost)){
             if(Entity.Combat.selectedEnemy != null){
                 if(Entity.Combat.isEnemyInRange(Entity.Combat.selectedEnemy,this.gameObject.transform.position.x,this.gameObject.transform.position.y, spellRange)){
                     Entity.Combat.selectedEnemy.enemyTarget.placeAtTop(typeof(Tank));
-                    tankAction.actionPointReduction(tauntCost);
+                    action.actionPointReduction(tauntCost);
                 }
                 else{
                     Debug.Log("Enemy not close enough");
@@ -80,24 +80,20 @@ public class Tank : MonoBehaviour
 
     
     public void tankButtonStates(){
-        tankAction.ButtonState(distractCost, distractButton);
-        tankAction.ButtonState(blockCost,blockButton);
-        tankAction.ButtonState(tauntCost, tauntButton);
+        action.ButtonState(distractCost, distractButton);
+        action.ButtonState(blockCost,blockButton);
+        action.ButtonState(tauntCost, tauntButton);
     }
     void Start(){
         Entity.setEntityActive(tankActive,this.gameObject);
-        if(tankActive == true){
-            for (int i = 0; i < Entity.Combat.allyList.Length; i++){
-                if(Entity.Combat.allyList[i] == null){
-                    Entity.Combat.allyList[i] = this;
-                    break;
-                }
-            }
-        }
     }
 
     void Update(){
         tankButtonStates();
-        updateTankText();    
+        updateTankText(); 
+    }
+
+    public void selectThisAlly(){
+        Entity.Combat.selectedAlly = typeof(Tank);
     }
 }

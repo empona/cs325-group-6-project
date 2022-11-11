@@ -7,7 +7,7 @@ public class CharacterSelect : MonoBehaviour{
   
     Button continueButton;
     public int classChangeIndex;
-    public static bool[] classArray = {false,false,false,false,false};
+    public static bool[] classArray = {false,true,true,true,true};
     //Warrior Range Healer Mage Tank to be inferred by index.
 
 

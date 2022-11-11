@@ -27,22 +27,22 @@ public class Mage : MonoBehaviour{
 
     int aoeRange = 3000;
 
-    Entity.Health mageHealth = new Entity.Health(70);
-    Entity.Action mageAction = new Entity.Action();
-    Entity.Movement mageMovement = new Entity.Movement(-1);
+    public static Entity.Health health = new Entity.Health(70);
+    public Entity.Action action = new Entity.Action();
+    public Entity.Movement movement = new Entity.Movement(-1);
 
     public void updateMageText(){
-        mageText.text=$"Mage Health: {mageHealth.getHealth()}\r\nMage Action Points: {mageAction.getActionPoints()}";
+        mageText.text=$"Mage Health: {health.getHealth()+health.getOverHealth()}\r\nMage Action Points: {action.getActionPoints()}";
     }
 
 
     public void castLightningZap(){
-        if(mageAction.actionUsable(lightningZapCost)){
+        if(action.actionUsable(lightningZapCost)){
             if(Entity.Combat.selectedEnemy != null){
                 if(Entity.Combat.isEnemyInRange(Entity.Combat.selectedEnemy,this.gameObject.transform.position.x,this.gameObject.transform.position.y, spellRange)){
                     Entity.Combat.selectedEnemy.enemyHealth.reduceHealth(lightningZapDamage);
                     Entity.Combat.selectedEnemy.enemyTarget.generateThreat(typeof(Mage),lightningZapDamage);
-                    mageAction.actionPointReduction(lightningZapCost);
+                    action.actionPointReduction(lightningZapCost);
                 }
                 else{
                     Debug.Log("Enemy not close enough");
@@ -56,12 +56,12 @@ public class Mage : MonoBehaviour{
     }
 
     public void castFireball(){
-        if(mageAction.actionUsable(fireballCost)){
+        if(action.actionUsable(fireballCost)){
             if(Entity.Combat.selectedEnemy != null){
                 if(Entity.Combat.isEnemyInRange(Entity.Combat.selectedEnemy,this.gameObject.transform.position.x,this.gameObject.transform.position.y, spellRange)){
                     Entity.Combat.selectedEnemy.enemyHealth.reduceHealth(fireballDamage);
                     Entity.Combat.selectedEnemy.enemyTarget.generateThreat(typeof(Mage),fireballDamage);
-                    mageAction.actionPointReduction(fireballCost);
+                    action.actionPointReduction(fireballCost);
                 }
                 else{
                     Debug.Log("Enemy not close enough");
@@ -75,7 +75,7 @@ public class Mage : MonoBehaviour{
     }
 
     public void castMeteorStrike(){
-        if(mageAction.actionUsable(meteorStrikeCost)){
+        if(action.actionUsable(meteorStrikeCost)){
             if(Entity.Combat.selectedEnemy != null){
                 if(Entity.Combat.isEnemyInRange(Entity.Combat.selectedEnemy,this.gameObject.transform.position.x,this.gameObject.transform.position.y, spellRange)){
                     Enemy[] enemiesAffected = Entity.Combat.enemiesNearSelectedEnemy(Entity.Combat.selectedEnemy,Entity.Combat.enemyList,Entity.Combat.size,aoeRange);
@@ -85,7 +85,7 @@ public class Mage : MonoBehaviour{
                             item.enemyTarget.generateThreat(typeof(Mage),meteorStrikeDamage);
                         }
                     }
-                    mageAction.actionPointReduction(meteorStrikeCost);
+                    action.actionPointReduction(meteorStrikeCost);
                 }
                 else{
                     Debug.Log("Enemy not close enough");
@@ -99,20 +99,19 @@ public class Mage : MonoBehaviour{
 
     
     public void mageButtonStates(){
-        mageAction.ButtonState(lightningZapCost, lightningZapButton);
-        mageAction.ButtonState(fireballCost,fireballButton);
-        mageAction.ButtonState(meteorStrikeCost, meteorStrikeButton);
+        action.ButtonState(lightningZapCost, lightningZapButton);
+        action.ButtonState(fireballCost,fireballButton);
+        action.ButtonState(meteorStrikeCost, meteorStrikeButton);
     }
     void Start(){
         Entity.setEntityActive(mageActive,this.gameObject);
-        if(mageActive == true){
-            for (int i = 0; i < Entity.Combat.allyList.Length; i++){
-                if(Entity.Combat.allyList[i] == null){
-                    Entity.Combat.allyList[i] = this;
-                    break;
-                }
-            }
-        }
+    }
+
+    public void selectThisAlly(){
+        Entity.Combat.selectedAlly = typeof(Mage);
+        Debug.Log(Entity.Combat.selectedAlly);
+        var test = FindObjectOfType(Entity.Combat.selectedAlly);
+        Debug.Log(test);
     }
 
     void Update(){
