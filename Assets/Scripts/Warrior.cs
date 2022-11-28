@@ -86,6 +86,7 @@ public class Warrior : MonoBehaviour
     
     void Start(){
         Entity.setEntityActive(warriorActive,this.gameObject);
+        /*
         if(warriorActive == true){
             for (int i = 0; i < Entity.Combat.allyList.Length; i++){
                 if(Entity.Combat.allyList[i] == null){
@@ -94,6 +95,7 @@ public class Warrior : MonoBehaviour
                 }
             }
         }
+        */
     }
 
     void Update(){
