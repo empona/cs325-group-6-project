@@ -5,16 +5,26 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     
-   
-        public float levelStartDelay = 2f;                        
-        public float turnDelay = 0.1f;                            
-        public int playerFoodPoints = 100;                        
+                         
         public static GameManager instance = null;                
-        [HideInInspector] public bool playersTurn = true;     
+        [HideInInspector] public bool playersTurn = true;   
+        private int level = 1;  
+        public List<Enemy> enemies;
 
         public void GameOver()
         {
 
+        }
+
+         void Awake()
+        {
+            
+            if (instance == null)
+            {
+                
+                instance = this;
+            }
+          
         }
 
         public void changeTurn()

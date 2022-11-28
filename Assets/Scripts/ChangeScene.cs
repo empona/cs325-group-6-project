@@ -8,7 +8,7 @@ public class ChangeScene : MonoBehaviour
     public int sceneID;
     public int loadSceneMode;
 
-    private void sceneChange(){
+     public void sceneChange(){
         if(loadSceneMode == 0){
             SceneManager.LoadScene(this.sceneID);
         }
