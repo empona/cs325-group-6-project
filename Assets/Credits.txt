@@ -1,0 +1,37 @@
+Art:
+	User Interface:
+		General User Interface - https://positron.itch.io/steampunk-fantasy-ui-pack
+		Health / Action Points - https://wenrexa.itch.io/ui-different02
+
+
+	Backgrounds:
+		https://digitalwytch.itch.io/glitchybgs
+
+
+	Classes:
+		Ranger - https://luizmelo.itch.io/huntress-2
+		Warrior - https://luizmelo.itch.io/fantasy-warrior 
+		Mage - https://luizmelo.itch.io/evil-wizard-2
+		Tank - https://sventhole.itch.io/hero-knight
+		Healer - https://luizmelo.itch.io/wizard-pack
+
+
+
+	Ability Icons:
+		https://free-game-assets.itch.io/free-rpg-warlock-skill-icons
+		https://free-game-assets.itch.io/48-free-swordsman-skills-icons-pixel-art 
+		https://free-game-assets.itch.io/free-paladin-pixel-art-skill-icons
+
+
+	Enemies:
+		Boss: https://gabrielatot.itch.io/steampunk-rpg-boss
+		Extra Enemies: https://trevor-pupkin.itch.io/tech-dungeon-roguelite
+		Filler Mobs: https://sventhole.itch.io/bandits
+
+	Tileset: 
+		https://trevor-pupkin.itch.io/tech-dungeon-roguelite
+
+
+Sound:
+	Game Loop - https://tallbeard.itch.io/music-loop-bundle
+	Button Click - https://freesound.org/people/NenadSimic/sounds/171697
